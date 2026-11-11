@@ -1,4 +1,5 @@
 *.sh text eol=lf
 *.bat text eol=crlf
-*.cmd text eol=crlf
 *.ps1 text eol=crlf
+# Read by both cmd (Windows) and sh (Linux): LF, which both accept.
+install.cmd text eol=lf

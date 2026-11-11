@@ -7,7 +7,7 @@
 #
 # It downloads the prebuilt binary from the latest GitHub release. If there is none for this
 # machine (or it doesn't run here), it builds from source, installing what that needs.
-# On Windows, run install.bat instead.
+# On Windows, run install.cmd instead (double-click it).
 set -euo pipefail
 
 REPO="ashar-viraj/PlayTogether"
@@ -22,7 +22,7 @@ die()  { printf '\033[1;31merror:\033[0m %s\n' "$*" >&2; exit 1; }
 
 case "$(uname -s)" in
   Linux) ;;
-  MINGW*|MSYS*|CYGWIN*) die "this is Windows: run install.bat instead." ;;
+  MINGW*|MSYS*|CYGWIN*) die "this is Windows: run install.cmd instead (double-click it)." ;;
   *) die "PlayTogether supports Linux (PipeWire) and Windows. This system is $(uname -s)." ;;
 esac
 

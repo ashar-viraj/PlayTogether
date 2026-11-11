@@ -1,7 +1,7 @@
 # PlayTogether installer for Windows. One time; afterwards use the "PlayTogether" and
 # "Stop PlayTogether" shortcuts (Start menu and desktop).
 #
-#   From a clone:   double-click install.bat
+#   From a clone:   double-click install.cmd
 #   Without one:    irm https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.ps1 | iex
 #
 # What it does:
@@ -11,7 +11,7 @@
 #      version's virtual sink, needed to keep this PC's own speakers in sync with the room.
 #   3. Allows PlayTogether through Windows Firewall so phones can connect.
 #   4. Creates Start / Stop shortcuts.
-# On Linux, run install.sh instead.
+# On Linux, run: sh install.cmd
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -25,7 +25,7 @@ function Say($m)  { Write-Host "==> $m" -ForegroundColor Green }
 function Warn($m) { Write-Host "warning: $m" -ForegroundColor Yellow }
 function Die($m)  { Write-Host "error: $m" -ForegroundColor Red; exit 1 }
 
-if ($env:OS -ne 'Windows_NT') { Die 'this is not Windows: run install.sh instead.' }
+if ($env:OS -ne 'Windows_NT') { Die 'this is not Windows: run: sh install.cmd' }
 if (-not [Environment]::Is64BitOperatingSystem) { Die 'PlayTogether needs 64-bit Windows.' }
 
 New-Item -ItemType Directory -Force -Path $AppDir | Out-Null

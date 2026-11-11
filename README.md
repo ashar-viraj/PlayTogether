@@ -5,10 +5,18 @@ PC in the room, **in sync**. Runs on **Linux** and **Windows**. Receivers just o
 
 ## Install (one time)
 
+Download or clone this repo and run **`install.cmd`**, the same file on both systems:
+
+- **Windows:** double-click `install.cmd`
+- **Linux:** `sh install.cmd`
+
+It works out which system it's on and runs the right installer (`install.ps1` on Windows, `install.sh` on Linux).
+Without downloading the repo first:
+
 | | |
 | --- | --- |
-| **Windows** | Double-click **`install.bat`**, or in PowerShell: `irm https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.ps1 \| iex` |
-| **Linux** | `./install.sh`, or: `curl -fsSL https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.sh \| bash` |
+| **Windows** (PowerShell) | `irm https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.ps1 \| iex` |
+| **Linux** | `curl -fsSL https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.sh \| bash` |
 
 The installer figures out the rest: it downloads the prebuilt app from the latest
 [release](https://github.com/ashar-viraj/PlayTogether/releases) (or builds it from source, installing Rust and

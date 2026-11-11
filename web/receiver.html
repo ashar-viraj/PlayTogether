@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PlayTogether</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main class="receiver">
+  <header>
+    <h1>PlayTogether</h1>
+    <span id="conn" class="pill">connecting…</span>
+  </header>
+
+  <section id="host-warning" class="card warn" hidden>
+    This is the host PC. It already plays the room audio on its own speakers, and playing it here
+    too would feed the sound back into itself. Use the <a href="/host">dashboard</a> to mute or unmute this PC.
+  </section>
+
+  <button id="join" class="big">Tap to join</button>
+
+  <section id="spot" class="card spot" hidden>
+    <div class="spot-row">
+      <svg id="spot-map" viewBox="-62 -66 124 128" aria-hidden="true"></svg>
+      <div>
+        <h2>Your spot</h2>
+        <div id="spot-clock" class="spot-clock">—</div>
+        <p id="spot-hint" class="hint"></p>
+      </div>
+    </div>
+    <p id="spot-mode" class="hint"></p>
+  </section>
+
+  <section id="player" class="card" hidden>
+    <div class="row">
+      <span id="status" class="status">Syncing…</span>
+      <button id="mute">Mute</button>
+    </div>
+
+    <label for="vol">Volume <output id="vol-out">100%</output></label>
+    <input type="range" id="vol" min="0" max="100" step="1" value="100">
+
+    <label for="off">Sync nudge <output id="off-out">0 ms</output></label>
+    <input type="range" id="off" min="-300" max="500" step="1" value="0">
+    <div class="nudge">
+      <button data-d="-10">−10</button><button data-d="-1">−1</button>
+      <button data-d="1">+1</button><button data-d="10">+10</button>
+    </div>
+    <p class="hint">Hear this device behind the others (common with Bluetooth)? Move right. Ahead of them? Move left.</p>
+
+    <label for="name">Device name</label>
+    <input id="name" maxlength="40" autocomplete="off">
+
+    <dl class="stats">
+      <dt>Clock sync round trip</dt><dd id="s-rtt">—</dd>
+      <dt>Headroom</dt><dd id="s-head">—</dd>
+      <dt>Output latency</dt><dd id="s-lat">—</dd>
+      <dt>Late chunks</dt><dd id="s-late">0</dd>
+    </dl>
+  </section>
+
+  <p class="hint">You can turn the screen off or switch apps, just don't close this tab. Your volume and nudge are saved on this device.</p>
+</main>
+<script src="/receiver.js"></script>
+</body>
+</html>

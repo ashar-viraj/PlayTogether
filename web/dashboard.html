@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PlayTogether Dashboard</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>PlayTogether</h1>
+    <span id="conn" class="pill">connecting…</span>
+  </header>
+
+  <div class="grid">
+    <section class="card join">
+      <h2>Join the room</h2>
+      <img id="qr" alt="QR code to join">
+      <div id="urls" class="urls"></div>
+      <p class="hint">Scan or open on any phone or PC on the same Wi-Fi.</p>
+    </section>
+
+    <section class="card">
+      <h2>Room delay</h2>
+      <div class="big-num"><span id="delay">—</span> <small>ms</small></div>
+      <label class="check"><input type="checkbox" id="auto"> Automatic: as low as every device allows</label>
+      <input type="range" id="delay-slider" min="15" max="500" step="1">
+      <p class="hint">How long after an app plays a sound every speaker plays it. Lower is closer to live. Too low for a device and it crackles.</p>
+      <div class="meter" title="Capture level"><div id="level"></div></div>
+      <p class="hint" id="capture-hint"></p>
+    </section>
+
+    <section class="card">
+      <h2>This PC</h2>
+      <div class="row">
+        <span id="pc-status" class="status">—</span>
+        <button id="pc-mute">Mute PC speakers</button>
+      </div>
+      <label for="pc-vol">Volume <output id="pc-vol-out">100%</output></label>
+      <input type="range" id="pc-vol" min="0" max="100" step="1">
+      <label for="pc-off">Sync nudge <output id="pc-off-out">0 ms</output></label>
+      <input type="range" id="pc-off" min="-300" max="500" step="1">
+      <dl class="stats">
+        <dt>Output</dt><dd id="pc-output" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</dd>
+        <dt>Output latency</dt><dd id="pc-lat">—</dd>
+        <dt>Headroom</dt><dd id="pc-head">—</dd>
+        <dt>Underruns</dt><dd id="pc-under">0</dd>
+      </dl>
+    </section>
+  </div>
+
+  <div class="grid room-grid">
+    <section class="card">
+      <h2>Room</h2>
+      <svg id="room" viewBox="-200 -172 400 350" role="img" aria-label="Room layout"></svg>
+      <div class="row buttons">
+        <button id="arrange">Arrange automatically</button>
+        <button id="test" class="primary">Speaker test</button>
+      </div>
+      <p class="hint" id="layout-hint"></p>
+    </section>
+
+    <section class="card">
+      <h2>3D sound</h2>
+      <div class="seg" id="modes">
+        <button data-mode="off">Off</button>
+        <button data-mode="surround">Surround</button>
+        <button data-mode="rotate">Rotate</button>
+        <button data-mode="position">Position</button>
+      </div>
+      <p class="hint" id="mode-hint"></p>
+      <div id="rotate-controls">
+        <label for="lap">One lap every <output id="lap-out"></output></label>
+        <input type="range" id="lap" min="2" max="30" step="0.5">
+        <div class="row"><span class="hint">Direction</span><button id="dir">Clockwise</button></div>
+      </div>
+      <div id="width-controls">
+        <label for="width">Width <output id="width-out"></output></label>
+        <input type="range" id="width" min="0" max="180" step="5">
+        <p class="hint">0° = one point of sound; wider spreads the left and right halves of the music apart.</p>
+      </div>
+
+      <h2 class="guide-title">Where to put each device</h2>
+      <ol id="guide" class="guide"></ol>
+      <p class="hint">Sit in the middle with the PC screen in front of you (12 o'clock). Keep every device the
+        same distance from you (each extra metre makes it ~3 ms late), speakers facing you, around ear height.</p>
+    </section>
+  </div>
+
+  <section class="card">
+    <h2>Devices <span id="count"></span></h2>
+    <div id="devices" class="devices"></div>
+    <div id="no-devices" class="empty">No devices yet. Scan the QR code on a phone.</div>
+  </section>
+</main>
+<script src="/dashboard.js"></script>
+</body>
+</html>

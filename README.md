@@ -1,7 +1,41 @@
 # PlayTogether
 
-Play whatever this Linux PC is playing (YouTube, Spotify, VLC, games, anything) on every phone and
-PC in the room, **in sync**. Receivers just open a web page, with no app to install.
+Play whatever this PC is playing (YouTube, Spotify, VLC, games, anything) on every phone and
+PC in the room, **in sync**. Runs on **Linux** and **Windows**. Receivers just open a web page, with no app to install.
+
+## Install (one time)
+
+| | |
+| --- | --- |
+| **Windows** | Double-click **`install.bat`**, or in PowerShell: `irm https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.ps1 \| iex` |
+| **Linux** | `./install.sh`, or: `curl -fsSL https://raw.githubusercontent.com/ashar-viraj/PlayTogether/main/install.sh \| bash` |
+
+The installer figures out the rest: it downloads the prebuilt app from the latest
+[release](https://github.com/ashar-viraj/PlayTogether/releases) (or builds it from source, installing Rust and
+build tools if needed) and adds **PlayTogether** and **Stop PlayTogether** shortcuts (Start menu + desktop on
+Windows, app menu on Linux; on Linux also the `playtogether` / `playtogether-stop` commands).
+On Windows it also installs the free [VB-Audio Virtual Cable](https://vb-audio.com/Cable/) (Windows has no
+built-in virtual sink; see below) and allows PlayTogether through the firewall, with one admin prompt.
+
+Start it, scan the QR code on the dashboard with your phones, and you're playing. Stop it with
+**Stop PlayTogether** (or Ctrl+C in its window): your normal speakers come back.
+
+**Releasing:** pushing a version tag (`git tag v0.2.0 && git push origin v0.2.0`) makes GitHub Actions build both
+platforms and publish them as a release, which the installers then download.
+
+## Windows
+
+Same method as on Linux, with Windows' audio APIs:
+
+| | Linux | Windows |
+| --- | --- | --- |
+| virtual sink every app plays into | PipeWire null sink (created on the fly) | VB-Audio Virtual Cable (made the default output while running) |
+| capture timestamps / host clock | PipeWire graph time, `CLOCK_MONOTONIC` | WASAPI packet QPC time, `QueryPerformanceCounter` |
+| when this PC's speaker really plays | PipeWire `delay + buffered` | `IAudioClock::GetPosition` |
+| format/rate conversion | PipeWire | WASAPI `AUTOCONVERTPCM` |
+
+Without VB-Cable it still works by capturing the speakers with WASAPI loopback, but then this PC plays straight
+away, ahead of the phones by the room delay.
 
 ```
  apps ──▶ [PlayTogether virtual sink] ──monitor──▶ host (Rust) ──WebSocket──▶ phones / PCs (browser)
@@ -9,7 +43,7 @@ PC in the room, **in sync**. Receivers just open a web page, with no app to inst
                                                        └──▶ this PC's real speakers (same schedule)
 ```
 
-## Run it
+## Run it from source (Linux)
 
 ```bash
 ./scripts/bootstrap-deps.sh     # once: fetches PipeWire/clang headers into .deps (no sudo)

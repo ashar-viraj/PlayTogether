@@ -1,9 +1,17 @@
+#[cfg(unix)]
+mod audio;
+#[cfg(windows)]
+#[path = "audio_win.rs"]
 mod audio;
 mod clock;
 mod controller;
 mod net;
 mod room;
 mod server;
+#[cfg(unix)]
+mod sinkctl;
+#[cfg(windows)]
+#[path = "sinkctl_win.rs"]
 mod sinkctl;
 mod spatial;
 mod state;
@@ -38,9 +46,19 @@ struct Args {
     #[arg(long)]
     pc_output: Option<String>,
 
+    /// Windows only: output device that plays this PC's synced share (e.g. "Speakers"). Use it
+    /// together with a virtual cable as the Windows default output; see README. Default: PC plays
+    /// normally, unsynced with the receivers.
+    #[arg(long)]
+    pc_play: Option<String>,
+
     /// Let receivers on this PC get audio (testing; a browser here would loop audio back).
     #[arg(long, hide = true)]
     dev_allow_local_receivers: bool,
+
+    /// Just put the normal audio output back (after PlayTogether was killed) and exit.
+    #[arg(long)]
+    restore_output: bool,
 }
 
 #[tokio::main]
@@ -48,6 +66,17 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     let defaults = sinkctl::read()?;
+    if args.restore_output {
+        let target = if defaults.configured.as_deref() == Some(audio::SINK_NAME) {
+            sinkctl::remember_user_default(defaults.configured)
+        } else {
+            defaults.configured
+        };
+        sinkctl::set_configured(target.as_deref())?;
+        sinkctl::forget_user_default();
+        println!("Normal audio output restored.");
+        return Ok(());
+    }
     if defaults.effective.as_deref() == Some(audio::SINK_NAME) {
         bail!("PlayTogether already seems to be running (its sink is the default output)");
     }
@@ -60,7 +89,26 @@ async fn main() -> anyhow::Result<()> {
     let ctl = Arc::new(AudioCtl::new(args.delay_ms.unwrap_or(100.0), args.mute_pc));
     let spatial = Arc::new(spatial::Shared::default());
     let (audio_tx, _) = broadcast::channel(128);
-    let audio = audio::start(ctl.clone(), spatial.clone(), audio_tx.clone(), pc_output.clone())?;
+    // Windows: with VB-Cable installed, capture the cable and play the PC's share on the real
+    // output in sync (like the Linux virtual sink). Without it, loopback-capture the real output.
+    #[cfg(windows)]
+    let (capture_from, pc_play) = match sinkctl::cable_capture_name() {
+        Some(cable) => (cable, Some(args.pc_play.clone().unwrap_or_else(|| pc_output.clone()))),
+        None => {
+            println!("VB-Cable not found: the PC plays directly and will be ahead of the phones.");
+            (pc_output.clone(), args.pc_play.clone())
+        }
+    };
+    #[cfg(unix)]
+    let capture_from = pc_output.clone();
+    let audio = audio::start(
+        ctl.clone(),
+        spatial.clone(),
+        audio_tx.clone(),
+        capture_from,
+        #[cfg(windows)]
+        pc_play,
+    )?;
     sinkctl::set_configured(Some(audio::SINK_NAME))?;
 
     let mut app = App::new(ctl, spatial, audio_tx, args.delay_ms.is_none(), pc_output.clone(), net::scan(args.port));
@@ -108,6 +156,12 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(windows)]
+async fn shutdown_signal() {
+    let _ = tokio::signal::ctrl_c().await;
+}
+
+#[cfg(unix)]
 async fn shutdown_signal() {
     use tokio::signal::unix::{SignalKind, signal};
     let mut term = signal(SignalKind::terminate()).expect("SIGTERM handler");
